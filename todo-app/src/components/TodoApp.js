@@ -1,21 +1,10 @@
 import React, { Component } from 'react';
 import NewTodoForm from './NewTodoForm';
 import TodoList from './TodoList';
-
+import { connect } from 'react-redux';
 class TodoApp extends Component {
   constructor() {
     super();
-    this.state = {
-      message: 'Hello Coding Garden!!',
-      newTodo: '',
-      todos: [{
-        title: 'Learn React',
-        done: false
-      }, {
-        title: 'Learn JSX',
-        done: false
-      }]
-    };
   }
 
   newTodoChanged(event) {
@@ -29,15 +18,18 @@ class TodoApp extends Component {
 
     this.setState({
       newTodo: '',
-      todos: [...this.state.todos, {
-        title: this.state.newTodo,
-        done: false
-      }]
+      todos: [
+        ...this.state.todos,
+        {
+          title: this.state.newTodo,
+          done: false
+        }
+      ]
     });
   }
 
   toggleTodoDone(event, index) {
-    const todos = [...this.state.todos]; // copy the array
+    const todos = [...this.props.todos]; // copy the array
     todos[index] = {
       ...todos[index],
       done: event.target.checked // update done property on copied todo
@@ -48,7 +40,7 @@ class TodoApp extends Component {
   }
 
   removeTodo(index) {
-    const todos = [...this.state.todos]; // copy the array
+    const todos = [...this.props.todos]; // copy the array
     todos.splice(index, 1);
 
     this.setState({
@@ -57,7 +49,7 @@ class TodoApp extends Component {
   }
 
   allDone() {
-    const todos = this.state.todos.map(todo => {
+    const todos = this.props.todos.map(todo => {
       return {
         title: todo.title, // can also do ...todo
         done: true
@@ -72,19 +64,27 @@ class TodoApp extends Component {
   render() {
     return (
       <div className="App">
-        <h3>{this.state.message}</h3>
+        <h3>{this.props.message}</h3>
         <NewTodoForm
-            newTodo={this.state.newTodo}
-            formSubmitted={this.formSubmitted.bind(this)}
-            newTodoChanged={this.newTodoChanged.bind(this)} />
+          newTodo={this.props.newTodo}
+          formSubmitted={this.formSubmitted.bind(this)}
+          newTodoChanged={this.newTodoChanged.bind(this)}
+        />
         <button onClick={() => this.allDone()}>All Done</button>
         <TodoList
-          todos={this.state.todos}
+          todos={this.props.todos}
           toggleTodoDone={this.toggleTodoDone.bind(this)}
-          removeTodo={this.removeTodo.bind(this)}/>
+          removeTodo={this.removeTodo.bind(this)}
+        />
       </div>
     );
   }
 }
-
-export default TodoApp;
+function mapStateToProps(state) {
+  return {
+    message: state.message,
+    newTodo: state.newTodo,
+    todos: state.todos
+  };
+}
+export default connect(mapStateToProps)(TodoApp);
